@@ -500,8 +500,8 @@ SYS_HRESULT AppDScadaFl4DFWorker::analysisCallData(AppDScadaDropFuseFault* fault
         {
             // 数据已经刷新
             SYS_LOG_MESSAGE(m_logger, ll_waring, "检测到数据刷新. 开始判定负荷变化");
-            /*if (overloadIsChanged(ia, ib, ic))
-            {*/
+            if (overloadIsChanged(ia, ib, ic)||true)
+            {
                 // 负荷发生突变降低，报送故障信息；
                 SYS_LOG_MESSAGE(m_logger, ll_debug, "负荷突变,线路发生故障，但是跌落保险可能未跌落");
 				if (deviceLastFaultMsgStamp==0||abs(SysLong(deviceUpdateStamp - deviceLastFaultMsgStamp)) > AppScadaFLConfigurationMgr::getInstance()->Df_MinDupFaultInterval * 1000)
@@ -514,13 +514,13 @@ SYS_HRESULT AppDScadaFl4DFWorker::analysisCallData(AppDScadaDropFuseFault* fault
 				{
 					SYS_LOG_MESSAGE(m_logger, ll_debug, "发送告警过于频繁，抑制发送" << (deviceUpdateStamp - deviceLastFaultMsgStamp)/1000<<"s");
 				}
-            //}
-            //else
-            //{
-            //    SYS_LOG_MESSAGE(m_logger, ll_waring, func << " 接收到短路信号，但是线路还存在电流." << ia << "A " << ib << "A " << ic << "A");
-            //    // 认为短路信号是一个虚假信号，不予处理；
-            //    m_removeSigVec.push_back(faultPtr->m_devCode);
-            //}
+            }
+            else
+            {
+                SYS_LOG_MESSAGE(m_logger, ll_waring, func << " 接收到短路信号，但是线路还存在电流." << ia << "A " << ib << "A " << ic << "A");
+                // 认为短路信号是一个虚假信号，不予处理；
+                m_removeSigVec.push_back(faultPtr->m_devCode);
+            }
 
         }
         else

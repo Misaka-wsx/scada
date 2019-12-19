@@ -624,6 +624,8 @@ SYS_HRESULT AppDScadaDataToDBWorker::parseShortMsgFaultData2Sql(AppDScadaSignal*
         SysChar tasTime[20];
         SysChar faulttype[20];
         SysChar Attribute[20];
+		SysChar phase[20];
+		sprintf(phase, "%d", faultPtr->m_phase);
         sprintf(faultid,"%lld",faultPtr->m_occurDevTime);
         sprintf(tasTime,"%lld",faultPtr->m_occurTasTime);
         sprintf(faulttype,"%d",faultPtr->m_faultType);
@@ -682,8 +684,8 @@ SYS_HRESULT AppDScadaDataToDBWorker::parseShortMsgFaultData2Sql(AppDScadaSignal*
                             sqlVec[0].size(),
                             11,
                             faultPtr->m_areaID.c_str(),         //台区id
-                            tasTime,                              //入库时间戳
-							faultPtr->m_phase                 //相别
+                            tasTime,                             //入库时间戳
+							phase								 //相别
                             );
             SysString Str = buffer;
             pkgPtr->sqlVec.push_back(Str);
