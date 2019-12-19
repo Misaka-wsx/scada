@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppDScadaFaultLocation", "AppDScadaFaultLocation\AppDScadaFaultLocation.vcxproj", "{335DF5B5-2919-4EF4-A0E1-E41D3BFED642}"
+	ProjectSection(ProjectDependencies) = postProject
+		{53269EE1-4793-4F65-973E-FD0B3742A46F} = {53269EE1-4793-4F65-973E-FD0B3742A46F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppDScadaData", "AppDScadaData\AppDScadaData.vcxproj", "{53269EE1-4793-4F65-973E-FD0B3742A46F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppFaultLocationRPC", "AppFaultLocationRPC\AppFaultLocationRPC.vcxproj", "{F3AB51FE-BF0E-490D-9EEA-3B9FDC79F0AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{335DF5B5-2919-4EF4-A0E1-E41D3BFED642}.Debug|Win32.ActiveCfg = Debug|Win32
+		{335DF5B5-2919-4EF4-A0E1-E41D3BFED642}.Debug|Win32.Build.0 = Debug|Win32
+		{335DF5B5-2919-4EF4-A0E1-E41D3BFED642}.Release|Win32.ActiveCfg = Release|Win32
+		{335DF5B5-2919-4EF4-A0E1-E41D3BFED642}.Release|Win32.Build.0 = Release|Win32
+		{53269EE1-4793-4F65-973E-FD0B3742A46F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{53269EE1-4793-4F65-973E-FD0B3742A46F}.Debug|Win32.Build.0 = Debug|Win32
+		{53269EE1-4793-4F65-973E-FD0B3742A46F}.Release|Win32.ActiveCfg = Release|Win32
+		{53269EE1-4793-4F65-973E-FD0B3742A46F}.Release|Win32.Build.0 = Release|Win32
+		{F3AB51FE-BF0E-490D-9EEA-3B9FDC79F0AE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F3AB51FE-BF0E-490D-9EEA-3B9FDC79F0AE}.Debug|Win32.Build.0 = Debug|Win32
+		{F3AB51FE-BF0E-490D-9EEA-3B9FDC79F0AE}.Release|Win32.ActiveCfg = Release|Win32
+		{F3AB51FE-BF0E-490D-9EEA-3B9FDC79F0AE}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

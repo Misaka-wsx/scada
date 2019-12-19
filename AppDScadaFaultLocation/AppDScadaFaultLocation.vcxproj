@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{335DF5B5-2919-4EF4-A0E1-E41D3BFED642}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>AppDScadaFaultLocation</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(TAS23_BUILD_HOME)\..\bin</OutDir>
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(TAS23_BUILD_HOME)\Backend\SysRtdbms\SysRtdbmsSrvClientlib;$(TAS23_BUILD_HOME)\Backend\SysRtdbms\SysRtdbmsRPC;$(TAS23_BUILD_HOME)\Backend\SysRtdbms\SysRtdbms;$(TAS_3rdLib_HOME)\Log4CXX\include;$(TAS_3rdLib_HOME)\ACE-6.1.0\ACE_wrappers;$(TAS23_BUILD_HOME)\Backend\SysUtils;$(TAS23_BUILD_HOME)\Backend\SysTcpComm;$(TAS23_BUILD_HOME)\Backend\SysServiceMonitorClient;$(TAS23_BUILD_HOME)\Backend\SysServiceMonitorRPC;$(TAS23_BUILD_HOME)\Backend\SysServiceMonitor;$(TAS23_BUILD_HOME)\Backend\SysXmlParser;$(TAS23_BUILD_HOME)\Backend\SysServiceMgr;$(TAS_3rdLib_HOME)\Xerces\xerces-c-3.1.1\src;$(TAS23_BUILD_HOME)\Backend\SysNotifyService\SysNotifyServerSrv;$(TAS23_BUILD_HOME)\Backend\SysDBSrvServer\SysDBSrvModelClient;$(TAS23_BUILD_HOME)\Backend\SysDBSrvServer\SysDBSrvRPC;$(TAS23_BUILD_HOME)\DSCADA\AppDScadaData;$(TAS23_BUILD_HOME)\DSCADA\AppFaultLocationRPC;$(TAS23_BUILD_HOME)\Backend\SysDBSrvServer\SysDBSrvServer;$(TAS23_BUILD_HOME)\Backend\SysFesGprsWebService;$(TAS_3rdLib_HOME)\protobuf\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(TAS_3rdLib_HOME)\vs2010-win7\;$(TAS23_BUILD_HOME)\..\lib;$(QTDIR)\lib\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ACEd.lib;SysFesGprsWebService.lib;log4cxx.lib;SysUtils.lib;SysTcpComm.lib;SysXmlParser_D.lib;SysRtdbms.lib;SysServiceMgr.lib;SysDBSrvRPC.lib;SysDBSrvClientlib.lib;AppDScadaData.lib;SysServiceMonitorClient.lib;SysServiceMonitorRPC.lib;AppFaultLocationRPC.lib;psapi.lib;QtCored4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="AppDScadaCallDataWorker.h" />
+    <ClInclude Include="AppDScadaFL4DF.h" />
+    <ClInclude Include="AppDScadaFL4Tiny.h" />
+    <ClInclude Include="AppDScadaFLConfig.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AppDScadaCallDataWorker.cpp" />
+    <ClCompile Include="AppDScadaFaultLocation.cpp" />
+    <ClCompile Include="AppDScadaFL4DF.cpp" />
+    <ClCompile Include="AppDScadaFL4Tiny.cpp" />
+    <ClCompile Include="AppDScadaFLConfig.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AppDScadaFaultLocation.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
