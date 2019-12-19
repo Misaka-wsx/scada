@@ -121,7 +121,7 @@ private:
     SYS_HRESULT getDropFuseRtData(AppDScadaDropFuseFault* faultPtr, SysDBModelSrvRsp& rsp);
 
 	//获取设备上次故障时间戳，故障抑制用
-	SYS_HRESULT getDropFuseLastFaultData(AppDScadaDropFuseFault* faultPtr, SysDBModelSrvRsp& rsp);
+	SYS_HRESULT getDropFuseLastFaultData(AppDScadaSignal* faultPtr, SysDBModelSrvRsp& rsp);
 	
     ACE_Recursive_Thread_Mutex     m_guard; 
 	//故障跌落故障表

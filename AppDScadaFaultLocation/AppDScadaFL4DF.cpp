@@ -123,6 +123,8 @@ SYS_HRESULT AppDScadaFl4DFWorker::processDropFuseOff(AppDScadaSignal* sigPtr)
     SYS_HRESULT hr = SYS_OK;
     SysString statusValue;
 	SysString deviceLineValue;
+	SysDBModelSrvRsp getLastTimestramp;
+	SysULong deviceLastFaultMsgStamp = 0;
 	//设备运行状态 与设备挂牌状态
 	if (SYS_OK ==getDeviceStatus(sigPtr->m_devCode, statusValue) && SYS_OK == getDeviceLineStatus(sigPtr->m_devCode, deviceLineValue))
     {
@@ -146,7 +148,27 @@ SYS_HRESULT AppDScadaFl4DFWorker::processDropFuseOff(AppDScadaSignal* sigPtr)
 				std::map<SysString, AppDScadaDropFuseFault*>::iterator it = m_DropFaultMap.find(sigPtr->m_devCode);
 				if (it != m_DropFaultMap.end())
 				{
-					if (abs((SysLong)(now - (it->second->m_lastFaultStamp))) > (AppScadaFLConfigurationMgr::getInstance()->Df_MinDupFaultInterval * 1000))
+					if (SYS_OK != getDropFuseLastFaultData(sigPtr, getLastTimestramp))
+					{
+						return hr;
+					}
+					else
+					{ 
+						if (getLastTimestramp.m_resultsVec.at(0).m_recordVec.size() == 0)
+						{
+							deviceLastFaultMsgStamp = 0;
+						}
+						else if (getLastTimestramp.m_resultsVec.at(0).m_recordVec.at(0).m_record.size() == 0)
+						{
+							deviceLastFaultMsgStamp = 0;
+						}
+						else
+						{
+							deviceLastFaultMsgStamp = (SysULong)(getLastTimestramp.m_resultsVec.at(0).m_recordVec.at(0).m_record.at(0).m_dataValue.valueDouble);
+						}
+					}
+					//0表示未查到该故障
+					if (deviceLastFaultMsgStamp==0||abs((SysLong)(now - deviceLastFaultMsgStamp)) > (AppScadaFLConfigurationMgr::getInstance()->Df_MinDupFaultInterval * 1000))
 					{
 						// 大于设定抑制时间，可以发送;
 						SYS_LOG_MESSAGE(m_logger, ll_debug, "大于设定时间，发送故障 " << (now - (it->second->m_lastFaultStamp)));
@@ -431,7 +453,7 @@ SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseRtData(AppDScadaDropFuseFault* faul
 
     return hr;
 }
-SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseLastFaultData(AppDScadaDropFuseFault * faultPtr, SysDBModelSrvRsp & rsp)
+SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseLastFaultData(AppDScadaSignal * faultPtr, SysDBModelSrvRsp & rsp)
 {
 
 	SYS_HRESULT hr = SYS_OK;
@@ -441,8 +463,8 @@ SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseLastFaultData(AppDScadaDropFuseFaul
 		MAX(TO_DATE(TO_CHAR(UPDATE_DATE, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss') - TO_DATE('1970-01-01 08:00:00', 'yyyy-mm-dd hh24:mi:ss')) * 1000 * 24 * 3600 \
 		FROM FACT_FAULT_SHORTMSG\
 		WHERE DEVICE_CODE ="+ faultPtr->m_devCode+"AND FTYPE_ID =" \
-		+std::to_string(static_cast<long long>(faultPtr->m_sig->m_faultType))+\
-		"AND PHASE ="+std::to_string(static_cast<long long>(faultPtr->m_sig->m_phase));
+		+std::to_string(static_cast<long long>(faultPtr->m_faultType))+\
+		"AND PHASE ="+std::to_string(static_cast<long long>(faultPtr->m_phase));
 	sqlVec.push_back(sql);
 	if (SYS_OK != m_modelDB.exeQuery(sqlVec, rsp))
 	{
@@ -472,7 +494,7 @@ SYS_HRESULT AppDScadaFl4DFWorker::analysisCallData(AppDScadaDropFuseFault* fault
     {
         return hr;
     }
-	else if (SYS_OK != getDropFuseLastFaultData(faultPtr, getLastTimestramp))
+	else if (SYS_OK != getDropFuseLastFaultData(faultPtr->m_sig, getLastTimestramp))
 	{
 		return hr;
 	}
@@ -500,7 +522,7 @@ SYS_HRESULT AppDScadaFl4DFWorker::analysisCallData(AppDScadaDropFuseFault* fault
         {
             // 数据已经刷新
             SYS_LOG_MESSAGE(m_logger, ll_waring, "检测到数据刷新. 开始判定负荷变化");
-            if (overloadIsChanged(ia, ib, ic)||true)
+            if (overloadIsChanged(ia, ib, ic))
             {
                 // 负荷发生突变降低，报送故障信息；
                 SYS_LOG_MESSAGE(m_logger, ll_debug, "负荷突变,线路发生故障，但是跌落保险可能未跌落");
