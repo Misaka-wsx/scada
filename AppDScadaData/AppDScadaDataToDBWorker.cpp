@@ -295,8 +295,54 @@ SYS_HRESULT AppDScadaDataToDBWorker::parseSampleData2Sql(AppDataPersisitPkg* pkg
 			case SYS_RTDB_UCHAR:
 				{
 					SysUChar ucvalue = pkgPtr->sampleDataVec[i].m_value.m_dataValue.valueUChar;
-					sprintf(insertValueBuf, "%d)", (SysInt)(ucvalue));
-                    sprintf(updateValueBuf, "%d ", (SysInt)(ucvalue));
+					if (pkgPtr->sampleDataVec[i].m_fieldName == "SWITCH_STATUS")
+					{
+						//开关状态解析 硬解。。。。。
+						switch (ucvalue)
+						{
+						case 0:
+							strncpy_s(insertValueBuf, "'000')", 8);
+							strncpy_s(updateValueBuf, "'000' ", 8);
+							break;
+						case 1:
+							strncpy_s(insertValueBuf, "'100')", 8);
+							strncpy_s(updateValueBuf, "'100' ", 8);
+							break;
+						case 2:
+							strncpy_s(insertValueBuf, "'010')", 8);
+							strncpy_s(updateValueBuf, "'010' ", 8);
+							break;
+						case 3:
+							strncpy_s(insertValueBuf, "'110')", 8);
+							strncpy_s(updateValueBuf, "'110' ", 8);
+							break;
+						case 4:
+							strncpy_s(insertValueBuf, "'001')", 8);
+							strncpy_s(updateValueBuf, "'001' ", 8);
+							break;
+						case 5:
+							strncpy_s(insertValueBuf, "'101')", 8);
+							strncpy_s(updateValueBuf, "'101' ", 8);
+							break;
+						case 6:
+							strncpy_s(insertValueBuf, "'011')", 8);
+							strncpy_s(updateValueBuf, "'011' ", 8);
+							break;
+						case 7:
+							strncpy_s(insertValueBuf, "'111')", 8);
+							strncpy_s(updateValueBuf, "'111' ", 8);
+							break;
+						default:
+							strncpy_s(insertValueBuf, "'1')", 8);
+							strncpy_s(updateValueBuf, "'1' ", 8);
+							break;
+						}
+					}
+					else
+					{
+						sprintf(insertValueBuf, "%d)", (SysInt)(ucvalue));
+						sprintf(updateValueBuf, "%d ", (SysInt)(ucvalue));
+					}
 					break;
 				}
 			default:
@@ -657,6 +703,7 @@ SYS_HRESULT AppDScadaDataToDBWorker::parseShortMsgFaultData2Sql(AppDScadaSignal*
         SysString Str = buffer;
         if((faultPtr->m_faultType == 23)||(faultPtr->m_faultType == 24)||(faultPtr->m_faultType == 54)||(faultPtr->m_faultType == 55))
         {
+			SYS_LOG_MESSAGE(m_sqlLogger, ll_waring, Str);
             pkgPtr->sqlVec.push_back(Str);
         }
         //入短信库
@@ -688,6 +735,7 @@ SYS_HRESULT AppDScadaDataToDBWorker::parseShortMsgFaultData2Sql(AppDScadaSignal*
 							phase								 //相别
                             );
             SysString Str = buffer;
+			SYS_LOG_MESSAGE(m_sqlLogger, ll_waring, Str);
             pkgPtr->sqlVec.push_back(Str);
         }
         occurDevTime = SysOSUtils::transEpochToTime(faultPtr->m_occurDevTime);

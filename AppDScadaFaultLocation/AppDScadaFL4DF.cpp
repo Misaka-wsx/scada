@@ -386,7 +386,7 @@ SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseFaultInfo(AppDScadaSignal* sig, std
 
     m_modelDB.refreshMaster();
 
-    SysString sql = "SELECT LONGITUDE_GPS, LATITUDE_GPS FROM FACT_DEVICE_DROP_MONITOR where DEVICE_CODE = " + sig->m_devCode;
+    SysString sql = "SELECT LONGITUDE_GPS, LATITUDE_GPS, SWITCH_STATUS FROM FACT_DEVICE_DROP_MONITOR where DEVICE_CODE = " + sig->m_devCode;
     std::vector<SysString> sqlVec;
     SysDBModelSrvRsp rsp; 
     sqlVec.push_back(sql);
@@ -401,19 +401,22 @@ SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseFaultInfo(AppDScadaSignal* sig, std
         SysString gpsInfo, section, faultName, faultType;
 
         SysChar tmp[512] = {0};
-        SysString longitude, latitude;
+		SysString longitude, latitude, switchStatus;
         sprintf(tmp, "%7f", rsp.m_resultsVec[0].m_recordVec[0].m_record[0].m_dataValue.valueDouble);
         longitude = tmp;
         memset(tmp, 0, sizeof(tmp));
         sprintf(tmp, "%7f", rsp.m_resultsVec[0].m_recordVec[0].m_record[1].m_dataValue.valueDouble);
         latitude = tmp;
+		memset(tmp, 0, sizeof(tmp));
+		sprintf(tmp, "%7f", rsp.m_resultsVec[0].m_recordVec[0].m_record[2].m_dataValue.valueDouble);
+		switchStatus = tmp;
         //gpsInfo = "x=" + longitude + "&y=" + latitude + "&z=" + sig->m_lineName + sig->m_pole + "杆" ;
         SysString occurTime = SysOSUtils::transEpochToTime(sig->m_occurDevTime);
         getDropFuseDescription(sig->m_faultType, faultName, faultType);
         SysString phaseName;
         getFaultPhaseStr(sig->m_phase, phaseName);
         gpsInfo = "d=" +sig->m_devCode + "&" +  "x=" + longitude + "&y=" + latitude + "&z=" + sig->m_lineName + sig->m_pole + "杆" + phaseName ;
-        section = sig->m_lineName + sig->m_pole + "杆" + "跌落保险于"+ occurTime+"发生" + faultName + "，相别:" + phaseName +"。";
+        section = sig->m_lineName + sig->m_pole + "杆" + "跌落保险于"+ occurTime+"发生" + faultName + "，相别：" + phaseName +"。";
 
         SysString signalStr;
         SysOSUtils::numberToString(sig->m_signalID, signalStr);
@@ -425,6 +428,7 @@ SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseFaultInfo(AppDScadaSignal* sig, std
         faultInfoVec.push_back(faultType);
         faultInfoVec.push_back(longitude);
         faultInfoVec.push_back(latitude);
+		faultInfoVec.push_back(switchStatus);
     }
 
     return hr;
@@ -577,42 +581,41 @@ SysBool     AppDScadaFl4DFWorker::overloadIsChanged(SysFloat ia, SysFloat ib, Sy
 
 SYS_HRESULT AppDScadaFl4DFWorker::dispatchSignalAsWarnMsg(AppDScadaSignal* sig)
 {
-    SYS_HRESULT hr = SYS_OK;
-    if (SYS_OK != m_modelDB.refreshMaster())
-    {
-        SYS_LOG_MESSAGE(m_logger, ll_error, "连接数据库失败! AppDScadaFl4DFWorker::dispatchSignalAsWarnMsg()");
-        return SYS_FAIL;
-    }
+	SYS_HRESULT hr = SYS_OK;
+	if (SYS_OK != m_modelDB.refreshMaster())
+	{
+		SYS_LOG_MESSAGE(m_logger, ll_error, "连接数据库失败! AppDScadaFl4DFWorker::dispatchSignalAsWarnMsg()");
+		return SYS_FAIL;
+	}
 
-    std::vector<SysString> faultInfoVec; // 0:section 1:gps 2:faultName 3:signalStr 4:faultType
-    hr = getDropFuseFaultInfo(sig, faultInfoVec);
-    if (SYS_OK != hr || faultInfoVec.size() != 7)
-    {
-        SYS_LOG_MESSAGE(m_logger, ll_error, "故障信息查询失败! AppDScadaFl4DFWorker::dispatchSignalAsWarnMsg()");
-        return SYS_FAIL;
-    }
+	std::vector<SysString> faultInfoVec; // 0:section 1:gps 2:faultName 3:signalStr 4:faultType
+	hr = getDropFuseFaultInfo(sig, faultInfoVec);
+	if (SYS_OK != hr || faultInfoVec.size() != 8)
+	{
+		SYS_LOG_MESSAGE(m_logger, ll_error, "故障信息查询失败! AppDScadaFl4DFWorker::dispatchSignalAsWarnMsg()");
+		return SYS_FAIL;
+	}
 
-    std::vector<SysString> userNameVec;
-    std::vector<SysString> phoneNumVec;
-    std::vector<SysString> warnTypeVec;
-    if (SYS_OK != m_modelDB.getLineRelatedUserInfo(sig->m_lineID, faultInfoVec[FAULT_INFO_TYPE], userNameVec, phoneNumVec, warnTypeVec))
-    {
-        SYS_LOG_MESSAGE(m_logger, ll_error, "查询故障订阅人员信息失败! AppDScadaFl4DFWorker::dispatchSignalAsWarnMsg()");
-        return SYS_FAIL;
-    }
+	std::vector<SysString> userNameVec;
+	std::vector<SysString> phoneNumVec;
+	std::vector<SysString> warnTypeVec;
+	if (SYS_OK != m_modelDB.getLineRelatedUserInfo(sig->m_lineID, faultInfoVec[FAULT_INFO_TYPE], userNameVec, phoneNumVec, warnTypeVec))
+	{
+		SYS_LOG_MESSAGE(m_logger, ll_error, "查询故障订阅人员信息失败! AppDScadaFl4DFWorker::dispatchSignalAsWarnMsg()");
+		return SYS_FAIL;
+	}
 
-    AppDataPersisitPkg * persistPgPtr = new AppDataPersisitPkg;
-    assert(NULL != persistPgPtr);
-    
-    SysChar tmp[512] = {0};
-    sprintf(tmp, "%7f", sig->m_value[0]);
-    SysString currenta = tmp;
-    memset(tmp, 0, sizeof(tmp));
-    sprintf(tmp, "%lld", sig->m_occurDevTime);
-    SysString occurDevTime = tmp;
-    SysString m_occurDevTime = SysOSUtils::transEpochToTime(sig->m_occurDevTime);
+	AppDataPersisitPkg * persistPgPtr = new AppDataPersisitPkg;
+	assert(NULL != persistPgPtr);
 
-    SysString updateSwitchStatus_M = "UPDATE FACT_DEVICE_DROP_MONITOR SET SWITCH_STATUS = 2 , IA = "+ currenta + " , IB = " + currenta + ", IC = " +  currenta + ",UPDATE_DATE = to_date('" + m_occurDevTime + "','yyyy-mm-dd hh24:mi:ss'),TIMESTAMP = " + occurDevTime + " WHERE DEVICE_CODE = " + sig->m_devCode;
+	SysChar tmp[512] = { 0 };
+	sprintf(tmp, "%7f", sig->m_value[0]);
+	SysString currenta = tmp;
+	memset(tmp, 0, sizeof(tmp));
+	sprintf(tmp, "%lld", sig->m_occurDevTime);
+	SysString occurDevTime = tmp;
+	SysString m_occurDevTime = SysOSUtils::transEpochToTime(sig->m_occurDevTime);
+	SysString updateSwitchStatus_M = "UPDATE FACT_DEVICE_DROP_MONITOR SET SWITCH_STATUS =" + faultInfoVec[SWITCH_STATUS]+ ", IA = " + currenta + " , IB = " + currenta + ", IC = " + currenta + ",UPDATE_DATE = to_date('" + m_occurDevTime + "','yyyy-mm-dd hh24:mi:ss'),TIMESTAMP = " + occurDevTime + " WHERE DEVICE_CODE = " + sig->m_devCode;
     SysString updateSwitchStatus_H = "insert into FACT_DEVICE_DROP_HISTORY (DEVICE_CODE, UPDATE_DATE, IA , IB, IC, SWITCH_STATUS, LONGITUDE_GPS,LATITUDE_GPS, TIMESTAMP, DEVICE_TYPE) values ('" + sig->m_devCode +"',to_date('" + m_occurDevTime + "','yyyy-mm-dd hh24:mi:ss'),\
         " + currenta + "," + currenta + "," + currenta + ",2," + faultInfoVec[LONGITUDE_GPS] + "," + faultInfoVec[LATITUDE_GPS] + "," + occurDevTime + ",11)";
     persistPgPtr->sqlVec.push_back(updateSwitchStatus_H);

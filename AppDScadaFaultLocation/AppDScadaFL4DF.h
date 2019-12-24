@@ -22,7 +22,8 @@ typedef enum
     FAULT_INFO_SIGNAL = 3,
     FAULT_INFO_TYPE = 4,
     LONGITUDE_GPS = 5,
-    LATITUDE_GPS= 6
+    LATITUDE_GPS= 6,
+	SWITCH_STATUS= 7
 }FAULT_INFO;
 
 class AppDScadaFTreeNode;
