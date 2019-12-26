@@ -31,7 +31,7 @@
 #define         DEF_UNDER_VOLTAGE										150		//欠压默认值
 #define			DEF_OVER_VOLTAGE										280     //过压默认值
 #define         DEF_OVER_CURRENT										500     //过流默认值
-#define		    MIN_DROP_FUSE_DUP_FAULT                                 60	//故障抑制时间s
+#define		    MIN_DROP_FUSE_DUP_FAULT                                 7200	//故障抑制时间s
 #define			DEF_RECV_SC_WAIT_DF_OFF_DELAY							60      // 跌落接收到短路信号后，多久报送故障信息
 #define			DEF_SC_WAIT_CALL_DATA_DELAY								60      // 等待召测的时延；
 #define			DEF_OVERLOAD_AS_ZERO_VALUE								3.0     // 视0门限；

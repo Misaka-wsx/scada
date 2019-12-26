@@ -411,7 +411,9 @@ SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseFaultInfo(AppDScadaSignal* sig, std
 		sprintf(tmp, "%7f", rsp.m_resultsVec[0].m_recordVec[0].m_record[2].m_dataValue.valueDouble);
 		switchStatus = tmp;
         //gpsInfo = "x=" + longitude + "&y=" + latitude + "&z=" + sig->m_lineName + sig->m_pole + "¸Ë" ;
-        SysString occurTime = SysOSUtils::transEpochToTime(sig->m_occurDevTime);
+		SysULong now = SysOSUtils::getTimeNowMsec();
+        //SysString occurTime = SysOSUtils::transEpochToTime(sig->m_occurDevTime);
+		SysString occurTime = SysOSUtils::transEpochToTime(now);
         getDropFuseDescription(sig->m_faultType, faultName, faultType);
         SysString phaseName;
         getFaultPhaseStr(sig->m_phase, phaseName);
@@ -612,16 +614,16 @@ SYS_HRESULT AppDScadaFl4DFWorker::dispatchSignalAsWarnMsg(AppDScadaSignal* sig)
 	sprintf(tmp, "%7f", sig->m_value[0]);
 	SysString currenta = tmp;
 	memset(tmp, 0, sizeof(tmp));
-	sprintf(tmp, "%lld", sig->m_occurDevTime);
+	sprintf(tmp, "%lld", sig->m_occurTasTime);
 	SysString occurDevTime = tmp;
-	SysString m_occurDevTime = SysOSUtils::transEpochToTime(sig->m_occurDevTime);
+	SysString m_occurDevTime = SysOSUtils::transEpochToTime(sig->m_occurTasTime);
 	SysString updateSwitchStatus_M = "UPDATE FACT_DEVICE_DROP_MONITOR SET SWITCH_STATUS =" + faultInfoVec[SWITCH_STATUS]+ ", IA = " + currenta + " , IB = " + currenta + ", IC = " + currenta + ",UPDATE_DATE = to_date('" + m_occurDevTime + "','yyyy-mm-dd hh24:mi:ss'),TIMESTAMP = " + occurDevTime + " WHERE DEVICE_CODE = " + sig->m_devCode;
     SysString updateSwitchStatus_H = "insert into FACT_DEVICE_DROP_HISTORY (DEVICE_CODE, UPDATE_DATE, IA , IB, IC, SWITCH_STATUS, LONGITUDE_GPS,LATITUDE_GPS, TIMESTAMP, DEVICE_TYPE) values ('" + sig->m_devCode +"',to_date('" + m_occurDevTime + "','yyyy-mm-dd hh24:mi:ss'),\
         " + currenta + "," + currenta + "," + currenta + ",2," + faultInfoVec[LONGITUDE_GPS] + "," + faultInfoVec[LATITUDE_GPS] + "," + occurDevTime + ",11)";
     persistPgPtr->sqlVec.push_back(updateSwitchStatus_H);
     persistPgPtr->sqlVec.push_back(updateSwitchStatus_M);
     SysChar cDevTime[15];
-    sprintf(cDevTime,"%lld",sig->m_occurDevTime);
+    sprintf(cDevTime,"%lld",sig->m_occurTasTime);
     SysString sDevTime = cDevTime;
     SysChar cCurrenta[15];
     sprintf(cCurrenta,"%0.2f",sig->m_value[0]);
