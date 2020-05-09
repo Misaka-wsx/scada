@@ -116,6 +116,10 @@ private:
     SYS_HRESULT deliverCallData(SysString& devCode);
 	//故障类型描述
     SYS_HRESULT getDropFuseDescription(SysUInt faultType, SysString& faultName ,SysString& faultID);
+	//查询上级线路id
+	SYS_HRESULT getParentLineInfo(SysString &lineId);
+	//查询线路名称
+	SYS_HRESULT getParentLineName( const SysString lineId,SysString& linename);
 	//故障设备经纬度信息
     SYS_HRESULT getDropFuseFaultInfo(AppDScadaSignal* sig, std::vector<SysString>& faultInfoVec);
 	//跌落保险实时数据 三相电流

@@ -380,6 +380,47 @@ SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseDescription(SysUInt faultType, SysS
     return hr;
 }
 
+SYS_HRESULT AppDScadaFl4DFWorker::getParentLineInfo(SysString & lineId)
+{
+	SYS_HRESULT hr = SYS_OK;
+
+	m_modelDB.refreshMaster();
+	std::vector<SysString> sqlVec;
+	sqlVec.clear();
+	SysString sql = "SELECT PID FROM DIM_LINE WHERE LINE_ID="+lineId;
+	sqlVec.push_back(sql);
+	SysDBModelSrvRsp rsp;
+	if (SYS_OK != m_modelDB.exeQuery(sqlVec,rsp))
+	{
+		SYS_LOG_MESSAGE(m_logger, ll_error,"查询线路拓扑失败，AppDScadaFl4DFWorker::getParentLineInfo()");
+		return SYS_FAIL;
+	}
+	lineId = rsp.m_resultsVec[0].m_recordVec[0].m_record[0].m_dataValue.valueInt;
+	
+	return hr;
+}
+
+SYS_HRESULT AppDScadaFl4DFWorker::getParentLineName( const SysString  lineId, SysString & linename)
+{
+	SYS_HRESULT hr = SYS_OK;
+
+	m_modelDB.refreshMaster();
+	std::vector<SysString> sqlVec;
+	sqlVec.clear();
+	SysString sql = "SELECT LINE_NAME FROM DIM_LINE WHERE LINE_ID=" + lineId;
+	sqlVec.push_back(sql);
+	SysDBModelSrvRsp rsp;
+	if (SYS_OK != m_modelDB.exeQuery(sqlVec, rsp))
+	{
+		SYS_LOG_MESSAGE(m_logger, ll_error, "查询线路拓扑失败，AppDScadaFl4DFWorker::getParentLinename()");
+		return SYS_FAIL;
+	}
+	linename = rsp.m_resultsVec[0].m_recordVec[0].m_record[0].m_dataValue.valueChar;
+
+	return hr;
+}
+
+
 SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseFaultInfo(AppDScadaSignal* sig, std::vector<SysString>& faultInfoVec)
 {
     SYS_HRESULT hr = SYS_OK;
@@ -417,8 +458,24 @@ SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseFaultInfo(AppDScadaSignal* sig, std
         getDropFuseDescription(sig->m_faultType, faultName, faultType);
         SysString phaseName;
         getFaultPhaseStr(sig->m_phase, phaseName);
-        gpsInfo = "d=" +sig->m_devCode + "&" +  "x=" + longitude + "&y=" + latitude + "&z=" + sig->m_lineName + sig->m_pole + "杆" + phaseName ;
-        section = sig->m_lineName + sig->m_pole + "杆" + "跌落保险于"+ occurTime+"发生" + faultName + "，相别：" + phaseName +"。";
+		SysString sectionLineDescribtion =sig->m_lineName;
+		auto lineid = sig->m_lineID;
+		auto linename = sig->m_lineName;
+		while (true)
+		{
+			getParentLineInfo(lineid);
+			if (lineid != "0")
+			{
+				getParentLineName(lineid, linename);
+				sectionLineDescribtion = linename + sectionLineDescribtion;
+			}
+			else
+			{
+				break;
+			}
+		}
+        gpsInfo = "d=" +sig->m_devCode + "&" +  "x=" + longitude + "&y=" + latitude + "&z=" + sectionLineDescribtion + sig->m_pole + "杆" + phaseName ;
+        section = sectionLineDescribtion + sig->m_pole + "杆" + "跌落保险于"+ occurTime+"发生" + faultName + "，相别：" + phaseName +"。";
 
         SysString signalStr;
         SysOSUtils::numberToString(sig->m_signalID, signalStr);
@@ -465,12 +522,54 @@ SYS_HRESULT AppDScadaFl4DFWorker::getDropFuseLastFaultData(AppDScadaSignal * fau
 	SYS_HRESULT hr = SYS_OK;
 	m_modelDB.refreshMaster();
 	std::vector<SysString> sqlVec;
+	SysString str="";
+	str = "and phase=" + std::to_string(static_cast<long long> (faultPtr->m_phase));
+	/*switch (faultPtr->m_phase)
+	{
+	case A_PHASE:
+	{
+		str = "AND (PHASE=1 OR PHASE=3 OR PHASE=5 OR PHASE=7)"; break;
+	}
+	case B_PHASE:
+	{
+		str = "AND (PHASE=2 OR PHASE=3 OR PHASE=6 OR PHASE=7)"; break;
+	}
+	case C_PHASE:
+	{
+		str = "AND (PHASE=4 OR PHASE=5 OR PHASE=6 OR PHASE=7)"; break;
+	}
+	case AB_PHASE:
+	{
+		str = "AND (PHASE=3 OR PHASE=7)"; break;
+	}
+	case AC_PHASE:
+	{
+		str = "AND (PHASE=5 OR PHASE=7)"; break;
+	}
+	case BC_PHASE:
+	{
+		str = "AND (PHASE=6 OR PHASE=7)"; break;
+	}
+	case ABC_PHASE:
+	{
+		str = "AND PHASE=7"; break;
+	}
+	case NO_PHASE:
+	{
+		str = ""; break;
+	}
+	default:
+	{
+		str = ""; break;
+	}
+	}*/
+
 	SysString sql = "SELECT \
 		MAX(TO_DATE(TO_CHAR(UPDATE_DATE, 'yyyy-mm-dd hh24:mi:ss'), 'yyyy-mm-dd hh24:mi:ss') - TO_DATE('1970-01-01 08:00:00', 'yyyy-mm-dd hh24:mi:ss')) * 1000 * 24 * 3600 \
 		FROM FACT_FAULT_SHORTMSG\
-		WHERE DEVICE_CODE ="+ faultPtr->m_devCode+"AND FTYPE_ID =" \
-		+std::to_string(static_cast<long long>(faultPtr->m_faultType))+\
-		"AND PHASE ="+std::to_string(static_cast<long long>(faultPtr->m_phase));
+		WHERE DEVICE_CODE =" + faultPtr->m_devCode + "AND FTYPE_ID =" \
+		+ std::to_string(static_cast<long long>(faultPtr->m_faultType))\
+		+" "+ str;
 	sqlVec.push_back(sql);
 	if (SYS_OK != m_modelDB.exeQuery(sqlVec, rsp))
 	{

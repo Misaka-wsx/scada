@@ -678,36 +678,9 @@ SYS_HRESULT AppDScadaDataToDBWorker::parseShortMsgFaultData2Sql(AppDScadaSignal*
         sprintf(faulttype,"%d",faultPtr->m_faultType);
         sprintf(Attribute,"%lld",faultPtr->m_specialAttribute);
 		occurDevTime = SysOSUtils::transEpochToTime(faultPtr->m_occurTasTime);
-        //occurDevTime = SysOSUtils::transEpochToTime(faultPtr->m_occurDevTime);
         occurTasTime = SysOSUtils::transEpochToTime(faultPtr->m_occurTasTime);
         SysChar buffer[2048] = {0};
-        //入故障库
-		//sprintf(buffer, "insert into %s (FAULT_ID,FAULT_DATE, UPDATE_DATE, DEVICE_CODE,TRANS_ID,TRANS_NAME,FTYPE_ID,FTYPE_NAME,FAULT_RANGE, SFS_CURRENT, SOE_ARRAY,GPSINFO, FAULT_VALUE ,TIMESTAMP,LINE_ID,LINE_NAME) values (\
-  //                      '%s',to_date('%s','yyyy-mm-dd hh24:mi:ss'),to_date('%s','yyyy-mm-dd hh24:mi:ss'),'%s','%s','%s','%s','%s','%s','%s','%s', '%s','%s',%lld,'%s','%s')",
-		//	tabName1.c_str(),
-		//	faultid,
-		//	occurDevTime.c_str(),        //故障时间
-		//	occurTasTime.c_str(),        //更新时间
-		//	sqlVec[3].c_str(),              //code
-		//	faultPtr->m_areaID.c_str(),         //台区id
-		//	faultPtr->m_areaName.c_str(),       //台区名
-		//	faulttype,                     //故障类型iD
-		//	sqlVec[2].c_str(),             //故障类型
-		//	sqlVec[0].c_str(),             //故障描述
-		//	Attribute,                     //故障点描述
-  //                      sqlVec[4].c_str(), 
-		//	sqlVec[1].c_str(),             //地理位置
-		//	sqlVec[5].c_str(),         //故障数据
-		//	faultPtr->m_occurDevTime,       //时间戳
-		//	faultPtr->m_lineID.c_str(),    //线路ID
-  //                      faultPtr->m_lineName.c_str()  //线路
-  //                      );
-  //      SysString Str = buffer;
-  //      if((faultPtr->m_faultType == 23)||(faultPtr->m_faultType == 24)||(faultPtr->m_faultType == 54)||(faultPtr->m_faultType == 55))
-  //      {
-		//	SYS_LOG_MESSAGE(m_sqlLogger, ll_waring, Str);
-  //          pkgPtr->sqlVec.push_back(Str);
-  //      }
+	
         //入短信库
         for(int i = 0; i < phoneNumber.size() ;i++)
         {
@@ -741,7 +714,6 @@ SYS_HRESULT AppDScadaDataToDBWorker::parseShortMsgFaultData2Sql(AppDScadaSignal*
 			SYS_LOG_MESSAGE(m_sqlLogger, ll_waring, Str);
             pkgPtr->sqlVec.push_back(Str);
         }
-		// occurDevTime = SysOSUtils::transEpochToTime(faultPtr->m_occurDevTime);
 		occurDevTime = SysOSUtils::transEpochToTime(faultPtr->m_occurTasTime);
     }
     return hr;

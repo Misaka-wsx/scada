@@ -9,7 +9,7 @@
 #include		"AppDScadaDataDef.h"
 #include		"AppDScadaMsgQueue.h"
 #include		"SysRtdbmsTableOperator.h"
-#include	"AppDScadaDataToDBWorker.h"
+#include		"AppDScadaDataToDBWorker.h"
 #include        "SysDBSrvModelClient.h"
 
 #define			DEALY_WAIT_VALID_SIGNAL		20
